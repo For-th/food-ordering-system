@@ -17,7 +17,7 @@ function ProductManagePage() {
 
   // Get all products
   const fetchProducts = () => {
-    fetch('/api/products/all')
+    fetch(`${process.env.REACT_APP_API_URL}/api/products/all`)
       .then(res => res.json())
       .then(data => {
         setProducts(data);
@@ -84,8 +84,8 @@ function ProductManagePage() {
 
     try {
       const url = editProduct
-        ? `/api/products/${editProduct.id}`
-        : '/api/products';
+  ? `${process.env.REACT_APP_API_URL}/api/products/${editProduct.id}`
+  : `${process.env.REACT_APP_API_URL}/api/products`;
       const method = editProduct ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -114,7 +114,7 @@ function ProductManagePage() {
   // Toggle availability
   const handleToggle = async (product) => {
     try {
-      await fetch(`/api/products/${product.id}/availability`, {
+      await fetch(`${process.env.REACT_APP_API_URL}/api/products/${product.id}/availability`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ available: !product.available }),
@@ -130,7 +130,7 @@ function ProductManagePage() {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      await fetch(`${process.env.REACT_APP_API_URL}/api/products/${id}`, { method: 'DELETE' }); 
       fetchProducts();
       alert('Product deleted successfully!');
     } catch (error) {

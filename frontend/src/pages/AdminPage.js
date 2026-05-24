@@ -6,7 +6,7 @@ function AdminPage() {
 
   // Get all orders
   const fetchOrders = () => {
-    fetch('/api/orders')
+    fetch(`${process.env.REACT_APP_API_URL}/api/orders`)
       .then(res => res.json())
       .then(data => {
         setOrders(data);
@@ -28,7 +28,7 @@ function AdminPage() {
   // Update order status
   const updateStatus = async (orderId, newStatus) => {
     try {
-      await fetch(`/api/orders/${orderId}/status`, {
+      await fetch(`${process.env.REACT_APP_API_URL}/api/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),

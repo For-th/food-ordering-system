@@ -13,7 +13,7 @@ function TrackOrderPage() {
     setOrder(null);
 
     try {
-      const response = await fetch(`/api/orders/${orderId}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/${orderId}`);
       const data = await response.json();
 
       if (response.ok && data) {

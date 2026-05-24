@@ -6,7 +6,7 @@ function MenuPage({ cart, setCart }) {
 
   // Get all products from the backend
   useEffect(() => {
-    fetch('/api/products')
+    fetch(`${process.env.REACT_APP_API_URL}/api/products`)
       .then(res => res.json())
       .then(data => {
         setProducts(data);
