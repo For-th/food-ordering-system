@@ -25,10 +25,11 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage });
 
 // Get all products (customer)
+// Get all products (customer)
 router.get('/', async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT * FROM products WHERE available = true ORDER BY id ASC'
+      'SELECT * FROM products WHERE available = true AND archived = false ORDER BY id ASC'
     );
     res.json(result.rows);
   } catch (error) {
@@ -41,7 +42,20 @@ router.get('/', async (req, res) => {
 router.get('/all', async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT * FROM products ORDER BY id ASC'
+      'SELECT * FROM products WHERE archived = false ORDER BY id ASC'
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get archived products (admin)
+router.get('/archived', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM products WHERE archived = true ORDER BY id ASC'
     );
     res.json(result.rows);
   } catch (error) {
@@ -122,12 +136,30 @@ router.patch('/:id/availability', async (req, res) => {
   }
 });
 
-// Delete product
-router.delete('/:id', async (req, res) => {
+// Archive product
+router.patch('/:id/archive', async (req, res) => {
   try {
     const { id } = req.params;
-    await pool.query('DELETE FROM products WHERE id=$1', [id]);
-    res.json({ message: 'Product deleted successfully' });
+    const result = await pool.query(
+      'UPDATE products SET archived = true WHERE id=$1 RETURNING *',
+      [id]
+    );
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Restore product
+router.patch('/:id/restore', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      'UPDATE products SET archived = false WHERE id=$1 RETURNING *',
+      [id]
+    );
+    res.json(result.rows[0]);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
