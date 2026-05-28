@@ -2,35 +2,29 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 const multer = require('multer');
-const path = require('path');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// Setup photo upload storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = Date.now() + path.extname(file.originalname);
-    cb(null, uniqueName);
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Configure Cloudinary storage for multer
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'lutom-restaurant',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    transformation: [{ width: 800, height: 600, crop: 'limit' }],
   },
 });
 
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|webp/;
-    const isValid = allowedTypes.test(
-      path.extname(file.originalname).toLowerCase()
-    );
-    if (isValid) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'));
-    }
-  },
-});
+const upload = multer({ storage });
 
-// Get all products
+// Get all products (customer)
 router.get('/', async (req, res) => {
   try {
     const result = await pool.query(
@@ -43,7 +37,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get all products for admin (including unavailable)
+// Get all products (admin)
 router.get('/all', async (req, res) => {
   try {
     const result = await pool.query(
@@ -61,8 +55,7 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query(
-      'SELECT * FROM products WHERE id = $1',
-      [id]
+      'SELECT * FROM products WHERE id = $1', [id]
     );
     res.json(result.rows[0]);
   } catch (error) {
@@ -71,13 +64,11 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Add new product with photo
+// Add new product with Cloudinary photo
 router.post('/', upload.single('image'), async (req, res) => {
   try {
     const { name, description, price, category } = req.body;
-    const image_url = req.file
-      ? `http://localhost:5000/uploads/${req.file.filename}`
-      : null;
+    const image_url = req.file ? req.file.path : null;
 
     const result = await pool.query(
       'INSERT INTO products (name, description, price, category, image_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
@@ -96,14 +87,12 @@ router.put('/:id', upload.single('image'), async (req, res) => {
     const { id } = req.params;
     const { name, description, price, category } = req.body;
 
-    // Get existing product first
     const existing = await pool.query(
       'SELECT * FROM products WHERE id = $1', [id]
     );
 
-    // Use new image if uploaded, otherwise keep existing
     const image_url = req.file
-      ? `http://localhost:5000/uploads/${req.file.filename}`
+      ? req.file.path
       : existing.rows[0].image_url;
 
     const result = await pool.query(
