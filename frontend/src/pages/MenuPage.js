@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 function MenuPage({ cart, setCart }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState('All');
 
-  // Get all products from the backend
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/products`)
       .then(res => res.json())
@@ -18,7 +18,6 @@ function MenuPage({ cart, setCart }) {
       });
   }, []);
 
-  // Add item to cart
   const addToCart = (product) => {
     const existing = cart.find(item => item.id === product.id);
     if (existing) {
@@ -32,25 +31,53 @@ function MenuPage({ cart, setCart }) {
     }
   };
 
-  if (loading) return <h2>Loading menu...</h2>;
+  // Get unique categories
+  const categories = ['All', ...new Set(products.map(p => p.category).filter(Boolean))];
+
+  // Filter products by category
+  const filtered = activeCategory === 'All'
+    ? products
+    : products.filter(p => p.category === activeCategory);
+
+  if (loading) return (
+    <div className="menu-page">
+      <p style={{ color: '#888', fontSize: '0.9rem' }}>Loading menu...</p>
+    </div>
+  );
 
   return (
     <div className="menu-page">
-      <h1>Our Menu</h1>
-      {products.length === 0 ? (
-        <p>No products available yet.</p>
+      {/* Category Filter */}
+      <div className="categories" style={{ padding: '0 0 1rem 0', marginBottom: '1rem' }}>
+        {categories.map(cat => (
+          <button
+            key={cat}
+            className={`category-pill ${activeCategory === cat ? 'active' : ''}`}
+            onClick={() => setActiveCategory(cat)}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      <p className="section-title">
+        {activeCategory === 'All' ? 'All Items' : activeCategory}
+      </p>
+
+      {filtered.length === 0 ? (
+        <p style={{ color: '#888' }}>No items available.</p>
       ) : (
         <div className="products-grid">
-          {products.map(product => (
+          {filtered.map(product => (
             <div key={product.id} className="product-card">
               <img src={product.image_url} alt={product.name} />
-              <h3>{product.name}</h3>
-              <p>{product.description}</p>
-              <div className="product-footer">
-                <span>₱{product.price}</span>
-                <button onClick={() => addToCart(product)}>
-                  Add to Cart
-                </button>
+              <div className="product-card-info">
+                <h3>{product.name}</h3>
+                <p>{product.description}</p>
+                <div className="product-footer">
+                  <span>₱{product.price}</span>
+                  <button onClick={() => addToCart(product)}>+</button>
+                </div>
               </div>
             </div>
           ))}
