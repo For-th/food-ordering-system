@@ -1219,12 +1219,58 @@ body {
   }
 }
 /* ===== ORDERS TABS ===== */
+/* ===== ORDERS TABS ===== */
 .orders-tabs {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
   align-items: center;
   flex-wrap: wrap;
+  border-bottom: 1px solid #e8e8e8;
+  padding-bottom: 1rem;
+}
+
+.orders-tab {
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  border: 1px solid #e0e0e0;
+  background: #f2f2f2;
+  color: #888;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.orders-tab.active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+.orders-tab:hover:not(.active) {
+  background: #e0e0e0;
+}
+
+.refresh-btn {
+  margin-left: auto;
+  background: transparent;
+  color: #888;
+  border: 1px solid #e0e0e0;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.refresh-btn:hover {
+  background: #f2f2f2;
+  color: #111;
 }
 
 .orders-tab {
