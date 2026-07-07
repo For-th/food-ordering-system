@@ -35,6 +35,7 @@ function CheckoutPage({ cart, setCart }) {
     // Validate phone number
     const phoneRegex = /^(09\d{9}|\+639\d{9})$/;
     if (!phoneRegex.test(form.phone)) {
+      const errorMessage = document.getElementById('phone-error');
       errorMessage.textContent = 'Please enter a valid phone number';
       return;
     }
