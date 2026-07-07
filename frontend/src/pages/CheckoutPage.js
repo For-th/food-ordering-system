@@ -130,7 +130,7 @@ function CheckoutPage({ cart, setCart }) {
             <div className="form-group">
               <label>Phone Number</label>
               <input
-                type="number"
+                type="tel"
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
