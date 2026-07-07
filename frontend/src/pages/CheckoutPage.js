@@ -10,6 +10,7 @@ function CheckoutPage({ cart, setCart }) {
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState(null);
+  const [phoneError, setPhoneError] = useState('');
 
   // Calculate total
   const subtotal = cart.reduce(
@@ -20,7 +21,21 @@ function CheckoutPage({ cart, setCart }) {
 
   // Handle form input changes
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === 'phone') {
+      const onlyNumbers = value.replace(/\D/g, '');
+      setForm((prev) => ({ ...prev, phone: onlyNumbers }));
+
+      if (onlyNumbers && !/^09\d{9}$/.test(onlyNumbers)) {
+        setPhoneError('Please enter a valid phone number');
+      } else {
+        setPhoneError('');
+      }
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   // Handle form submission
@@ -33,13 +48,12 @@ function CheckoutPage({ cart, setCart }) {
     }
 
     // Validate phone number
-    const phoneRegex = /^(09\d{9}|\+639\d{9})$/;
-    if (!phoneRegex.test(form.phone)) {
-      const errorMessage = document.getElementById('phone-error');
-      errorMessage.textContent = 'Please enter a valid phone number';
+    if (!/^09\d{9}$/.test(form.phone)) {
+      setPhoneError('Please enter a valid phone number');
       return;
     }
 
+    setPhoneError('');
     setLoading(true);
 
     try {
@@ -143,8 +157,11 @@ function CheckoutPage({ cart, setCart }) {
                 value={form.phone}
                 onChange={handleChange}
                 placeholder="09171234567"
+                inputMode="numeric"
+                maxLength={11}
                 required
               />
+              {phoneError && <p id="phone-error" className="error-message">{phoneError}</p>}
             </div>
             <div className="form-group">
               <label>Delivery Address</label>
