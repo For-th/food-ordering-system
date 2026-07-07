@@ -76,9 +76,6 @@ function AdminPage() {
             <span className="tab-badge completed">{completedOrders.length}</span>
           )}
         </button>
-        <button className="refresh-btn" onClick={fetchOrders}>
-          🔄 Refresh
-        </button>
       </div>
 
       {/* Active Orders */}
