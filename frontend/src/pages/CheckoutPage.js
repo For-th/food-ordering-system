@@ -32,10 +32,10 @@ function CheckoutPage({ cart, setCart }) {
       return;
     }
 
-    // Validate phone number (Philippine formats: 09XXXXXXXXX or +639XXXXXXXXX)
+    // Validate phone number
     const phoneRegex = /^(09\d{9}|\+639\d{9})$/;
     if (!phoneRegex.test(form.phone)) {
-      alert('Please enter a valid Philippine phone number (e.g. 09171234567 or +639171234567).');
+      alert('Please enter a valid phone number');
       return;
     }
 
