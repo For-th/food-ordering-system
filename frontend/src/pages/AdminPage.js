@@ -22,8 +22,27 @@ function AdminPage() {
 
   useEffect(() => {
     fetchOrders();
+
+    const eventSource = new EventSource(`${process.env.REACT_APP_API_URL}/api/orders/stream`);
+
+    eventSource.addEventListener('new-order', () => {
+      fetchOrders();
+    });
+
+    eventSource.onmessage = () => {
+      fetchOrders();
+    };
+
+    eventSource.onerror = () => {
+      console.error('Order stream disconnected');
+    };
+
     const interval = setInterval(fetchOrders, 30000);
-    return () => clearInterval(interval);
+
+    return () => {
+      eventSource.close();
+      clearInterval(interval);
+    };
   }, []);
 
   const updateStatus = async (orderId, newStatus) => {

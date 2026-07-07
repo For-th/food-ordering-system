@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const orderEvents = require('../orderEvents');
 
 // Place a new order
 router.post('/', async (req, res) => {
@@ -33,6 +34,12 @@ router.post('/', async (req, res) => {
         [orderId, item.product_id, item.name, item.price, item.quantity]
       );
     }
+
+    orderEvents.broadcast('new-order', {
+      id: orderId,
+      status: 'pending',
+      created_at: new Date().toISOString(),
+    });
 
     res.json({ message: 'Order placed successfully!', orderId });
   } catch (error) {
