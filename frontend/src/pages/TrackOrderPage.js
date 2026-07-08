@@ -6,6 +6,7 @@ function TrackOrderPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [cancelSuccess, setCancelSuccess] = useState('');
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const handleTrack = async (e) => {
     e.preventDefault();
@@ -32,9 +33,6 @@ function TrackOrderPage() {
 
   const handleCancelOrder = async () => {
     if (!orderId) return;
-
-    const confirmed = window.confirm('Are you sure you want to cancel this order?');
-    if (!confirmed) return;
 
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/${orderId}/status`, {
@@ -153,14 +151,37 @@ function TrackOrderPage() {
             </div>
 
             {order.status !== 'cancelled' && (
-              <button
-                type="button"
-                className="place-order-btn"
-                onClick={handleCancelOrder}
-                style={{ marginTop: '1rem', backgroundColor: '#e74c3c' }}
-              >
-                Cancel Order
-              </button>
+              <div style={{ marginTop: '1rem' }}>
+                {showCancelConfirm ? (
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      className="place-order-btn"
+                      onClick={handleCancelOrder}
+                      style={{ backgroundColor: '#e74c3c' }}
+                    >
+                      Yes, Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="place-order-btn"
+                      onClick={() => setShowCancelConfirm(false)}
+                      style={{ backgroundColor: '#7f8c8d' }}
+                    >
+                      Keep Order
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="place-order-btn"
+                    onClick={() => setShowCancelConfirm(true)}
+                    style={{ backgroundColor: '#e74c3c' }}
+                  >
+                    Cancel Order
+                  </button>
+                )}
+              </div>
             )}
 
             {/* Delivery Address */}
