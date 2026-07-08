@@ -36,6 +36,11 @@ function CheckoutPage({ cart, setCart }) {
       return;
     }
 
+    if (name === 'delivery_method' && value === 'pickup') {
+      setForm((prev) => ({ ...prev, address: '', [name]: value }));
+      return;
+    }
+
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -194,16 +199,18 @@ function CheckoutPage({ cart, setCart }) {
                 </label>
               </div>
             </div>
-            <div className="form-group">
-              <label>Delivery Address</label>
-              <textarea
-                name="address"
-                value={form.address}
-                onChange={handleChange}
-                placeholder="123 Rizal St., Brgy. San Jose"
-                required={form.delivery_method === 'delivery'}
-              />
-            </div>
+            {form.delivery_method === 'delivery' && (
+              <div className="form-group">
+                <label>Delivery Address</label>
+                <textarea
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
+                  placeholder="123 Rizal St., Brgy. San Jose"
+                  required
+                />
+              </div>
+            )}
             <div className="form-group">
               <label>Landmark (optional)</label>
               <input
