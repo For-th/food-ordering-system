@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+const pool = require('./db');
 const productsRoute = require('./routes/products');
 const ordersRoute = require('./routes/orders');
 const orderEvents = require('./orderEvents');

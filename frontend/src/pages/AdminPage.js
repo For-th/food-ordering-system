@@ -133,6 +133,7 @@ function AdminPage() {
                 <div className="order-customer">
                   <p><strong>Name:</strong> {order.name}</p>
                   <p><strong>Phone:</strong> {order.phone}</p>
+                  <p><strong>Method:</strong> {order.delivery_method === 'pickup' ? 'Pickup' : 'Delivery'}</p>
                   <p><strong>Address:</strong> {order.address}</p>
                   {order.landmark && (
                     <p><strong>Landmark:</strong> {order.landmark}</p>
@@ -211,6 +212,7 @@ function AdminPage() {
                   <div className="order-customer">
                     <p><strong>Name:</strong> {order.name}</p>
                     <p><strong>Phone:</strong> {order.phone}</p>
+                    <p><strong>Method:</strong> {order.delivery_method === 'pickup' ? 'Pickup' : 'Delivery'}</p>
                     <p><strong>Address:</strong> {order.address}</p>
                     {order.landmark && (
                       <p><strong>Landmark:</strong> {order.landmark}</p>

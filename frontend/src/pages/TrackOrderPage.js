@@ -165,6 +165,8 @@ function TrackOrderPage() {
 
             {/* Delivery Address */}
             <div className="track-address">
+              <h4>Order Type:</h4>
+              <p>{order.delivery_method === 'pickup' ? 'Pickup' : 'Delivery'}</p>
               <h4>Delivery Address:</h4>
               <p>{order.address}</p>
               {order.landmark && <p>Landmark: {order.landmark}</p>}

@@ -6,12 +6,12 @@ const orderEvents = require('../orderEvents');
 // Place a new order
 router.post('/', async (req, res) => {
   try {
-    const { name, phone, address, landmark, items, delivery_fee } = req.body;
+    const { name, phone, address, landmark, items, delivery_fee, delivery_method = 'delivery' } = req.body;
 
     // Step 1 - Save customer info
     const customer = await pool.query(
       'INSERT INTO customers (name, phone, address, landmark) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, phone, address, landmark]
+      [name, phone, address || '', landmark || '']
     );
     const customerId = customer.rows[0].id;
 
@@ -22,8 +22,8 @@ router.post('/', async (req, res) => {
 
     // Step 3 - Save the order
     const order = await pool.query(
-      'INSERT INTO orders (customer_id, total_amount, delivery_fee) VALUES ($1, $2, $3) RETURNING *',
-      [customerId, totalAmount, delivery_fee]
+      'INSERT INTO orders (customer_id, total_amount, delivery_fee, delivery_method) VALUES ($1, $2, $3, $4) RETURNING *',
+      [customerId, totalAmount, delivery_fee, delivery_method]
     );
     const orderId = order.rows[0].id;
 

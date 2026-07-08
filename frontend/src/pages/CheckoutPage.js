@@ -6,6 +6,7 @@ function CheckoutPage({ cart, setCart }) {
     phone: '',
     address: '',
     landmark: '',
+    delivery_method: 'delivery',
   });
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
@@ -16,7 +17,7 @@ function CheckoutPage({ cart, setCart }) {
   const subtotal = cart.reduce(
     (sum, item) => sum + item.price * item.quantity, 0
   );
-  const deliveryFee = 50;
+  const deliveryFee = form.delivery_method === 'pickup' ? 0 : 50;
   const total = subtotal + deliveryFee;
 
   // Handle form input changes
@@ -69,6 +70,7 @@ function CheckoutPage({ cart, setCart }) {
             quantity: item.quantity,
           })),
           delivery_fee: deliveryFee,
+          delivery_method: form.delivery_method,
         }),
       });
 
@@ -124,6 +126,10 @@ function CheckoutPage({ cart, setCart }) {
               <span>₱{subtotal.toFixed(2)}</span>
             </div>
             <div className="summary-row">
+              <span>Delivery Method</span>
+              <span>{form.delivery_method === 'pickup' ? 'Pickup' : 'Delivery'}</span>
+            </div>
+            <div className="summary-row">
               <span>Delivery Fee</span>
               <span>₱{deliveryFee}.00</span>
             </div>
@@ -164,13 +170,38 @@ function CheckoutPage({ cart, setCart }) {
               {phoneError && <p id="phone-error" className="error-message">{phoneError}</p>}
             </div>
             <div className="form-group">
+              <label>Choose Order Type</label>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <input
+                    type="radio"
+                    name="delivery_method"
+                    value="delivery"
+                    checked={form.delivery_method === 'delivery'}
+                    onChange={handleChange}
+                  />
+                  Deliver to me
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <input
+                    type="radio"
+                    name="delivery_method"
+                    value="pickup"
+                    checked={form.delivery_method === 'pickup'}
+                    onChange={handleChange}
+                  />
+                  Pick up
+                </label>
+              </div>
+            </div>
+            <div className="form-group">
               <label>Delivery Address</label>
               <textarea
                 name="address"
                 value={form.address}
                 onChange={handleChange}
                 placeholder="123 Rizal St., Brgy. San Jose"
-                required
+                required={form.delivery_method === 'delivery'}
               />
             </div>
             <div className="form-group">
