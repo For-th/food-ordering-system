@@ -5,11 +5,13 @@ function TrackOrderPage() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [cancelSuccess, setCancelSuccess] = useState('');
 
   const handleTrack = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setCancelSuccess('');
     setOrder(null);
 
     try {
@@ -28,12 +30,37 @@ function TrackOrderPage() {
     setLoading(false);
   };
 
+  const handleCancelOrder = async () => {
+    if (!orderId) return;
+
+    const confirmed = window.confirm('Are you sure you want to cancel this order?');
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'cancelled' }),
+      });
+
+      if (response.ok) {
+        setCancelSuccess('Your order has been cancelled successfully.');
+        setOrder((prev) => prev ? { ...prev, status: 'cancelled' } : prev);
+      } else {
+        setError('Unable to cancel this order right now.');
+      }
+    } catch (error) {
+      setError('Something went wrong while cancelling the order.');
+    }
+  };
+
   const getStatusStep = (status) => {
     switch (status) {
       case 'pending': return 1;
       case 'preparing': return 2;
       case 'out for delivery': return 3;
       case 'delivered': return 4;
+      case 'cancelled': return 0;
       default: return 1;
     }
   };
@@ -79,26 +106,32 @@ function TrackOrderPage() {
               Hello, <strong>{order.name}</strong>! Here is your order status:
             </p>
 
-            {/* Status Steps */}
-            <div className="status-steps">
-              {steps.map((step, index) => {
-                const stepNumber = index + 1;
-                const currentStep = getStatusStep(order.status);
-                const isCompleted = stepNumber <= currentStep;
-                return (
-                  <div
-                    key={index}
-                    className={`status-step ${isCompleted ? 'completed' : ''}`}
-                  >
-                    <div className="step-icon">{step.icon}</div>
-                    <div className="step-label">{step.label}</div>
-                    {index < steps.length - 1 && (
-                      <div className={`step-line ${isCompleted && stepNumber < currentStep ? 'completed' : ''}`} />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            {cancelSuccess && <p className="success-message">{cancelSuccess}</p>}
+            {error && <p className="error-message">{error}</p>}
+
+            {order.status === 'cancelled' ? (
+              <p className="error-message">This order has been cancelled.</p>
+            ) : (
+              <div className="status-steps">
+                {steps.map((step, index) => {
+                  const stepNumber = index + 1;
+                  const currentStep = getStatusStep(order.status);
+                  const isCompleted = stepNumber <= currentStep;
+                  return (
+                    <div
+                      key={index}
+                      className={`status-step ${isCompleted ? 'completed' : ''}`}
+                    >
+                      <div className="step-icon">{step.icon}</div>
+                      <div className="step-label">{step.label}</div>
+                      {index < steps.length - 1 && (
+                        <div className={`step-line ${isCompleted && stepNumber < currentStep ? 'completed' : ''}`} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Order Items */}
             <div className="track-items">
@@ -118,6 +151,17 @@ function TrackOrderPage() {
                 <strong>₱{order.total_amount}</strong>
               </div>
             </div>
+
+            {order.status !== 'cancelled' && (
+              <button
+                type="button"
+                className="place-order-btn"
+                onClick={handleCancelOrder}
+                style={{ marginTop: '1rem', backgroundColor: '#e74c3c' }}
+              >
+                Cancel Order
+              </button>
+            )}
 
             {/* Delivery Address */}
             <div className="track-address">

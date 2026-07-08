@@ -10,8 +10,8 @@ function AdminPage() {
     fetch(`${process.env.REACT_APP_API_URL}/api/orders`)
       .then(res => res.json())
       .then(data => {
-        setOrders(data.filter(o => o.status !== 'delivered'));
-        setCompletedOrders(data.filter(o => o.status === 'delivered'));
+        setOrders(data.filter(o => o.status !== 'delivered' && o.status !== 'cancelled'));
+        setCompletedOrders(data.filter(o => o.status === 'delivered' || o.status === 'cancelled'));
         setLoading(false);
       })
       .catch(err => {
@@ -26,6 +26,10 @@ function AdminPage() {
     const eventSource = new EventSource(`${process.env.REACT_APP_API_URL}/api/orders/stream`);
 
     eventSource.addEventListener('new-order', () => {
+      fetchOrders();
+    });
+
+    eventSource.addEventListener('order-updated', () => {
       fetchOrders();
     });
 
@@ -65,6 +69,7 @@ function AdminPage() {
       case 'preparing': return '#f39c12';
       case 'out for delivery': return '#3498db';
       case 'delivered': return '#2ecc71';
+      case 'cancelled': return '#7f8c8d';
       default: return '#95a5a6';
     }
   };
@@ -197,9 +202,9 @@ function AdminPage() {
                     </div>
                     <span
                       className="status-badge"
-                      style={{ backgroundColor: '#2ecc71' }}
+                      style={{ backgroundColor: order.status === 'cancelled' ? '#7f8c8d' : '#2ecc71' }}
                     >
-                      Delivered ✓
+                      {order.status === 'cancelled' ? 'Cancelled' : 'Delivered ✓'}
                     </span>
                   </div>
 

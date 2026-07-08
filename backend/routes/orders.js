@@ -101,6 +101,12 @@ router.patch('/:id/status', async (req, res) => {
       'UPDATE orders SET status = $1 WHERE id = $2 RETURNING *',
       [status, id]
     );
+
+    orderEvents.broadcast('order-updated', {
+      id: Number(id),
+      status: result.rows[0].status,
+    });
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error(error);
